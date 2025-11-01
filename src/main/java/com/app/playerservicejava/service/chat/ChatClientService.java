@@ -41,4 +41,16 @@ public class ChatClientService {
         return response.getResponse();
     }
 
+    public String chat(String message, String model) throws OllamaBaseException, IOException, InterruptedException {
+        if (model == null || model.trim().isEmpty()) {
+            model = OllamaModelType.TINYLLAMA;
+        }
+
+        PromptBuilder promptBuilder = new PromptBuilder().addLine(message);
+        boolean raw = false;
+
+        OllamaResult response = ollamaAPI.generate(model, promptBuilder.build(), raw, new OptionsBuilder().build());
+        return response.getResponse();
+    }
+
 }

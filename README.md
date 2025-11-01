@@ -39,6 +39,7 @@ Player Service is a backend application that serves baseball player data. In add
 
    ```shell
    mvn spring-boot:run
+   ./mvnw spring-boot:run
    ```
 
 2. Verify the Player service is running
