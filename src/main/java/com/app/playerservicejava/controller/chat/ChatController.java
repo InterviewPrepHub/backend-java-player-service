@@ -2,6 +2,8 @@ package com.app.playerservicejava.controller.chat;
 
 import com.app.playerservicejava.dto.ChatRequest;
 import com.app.playerservicejava.dto.ChatResponse;
+import com.app.playerservicejava.model.Player;
+import com.app.playerservicejava.service.PlayerService;
 import com.app.playerservicejava.service.chat.ChatClientService;
 import io.github.ollama4j.exceptions.OllamaBaseException;
 import io.github.ollama4j.models.Model;
@@ -25,6 +27,9 @@ public class ChatController {
 
     @Autowired
     private ChatClientService chatClientService;
+
+    @Autowired
+    private PlayerService playerService;
 
     @RequestMapping(method = RequestMethod.POST)
     public String chat() throws OllamaBaseException, IOException, InterruptedException {
@@ -52,6 +57,15 @@ public class ChatController {
         return ResponseEntity.ok(models);
     }
 
+
+    @GetMapping("/summarize-player/{id}")
+    public ResponseEntity<String> summarizePlayer(@PathVariable String id) throws OllamaBaseException, IOException, InterruptedException {
+        Player player = playerService.getPlayerById(id).get();
+        String prompt = buildSummaryPrompt(player);
+        String summary = chatClientService.sendPromptToOllama(prompt);
+        return ResponseEntity.ok(summary);
+    }
+
     @GetMapping("/test")
     public String test() {
         return "Test endpoint is working!";
@@ -66,5 +80,13 @@ public class ChatController {
     public String testOllamaError() throws OllamaBaseException {
         // Simulate an OllamaBaseException
         throw new OllamaBaseException("Simulated Ollama service error: Model not found");
+    }
+
+    private String buildSummaryPrompt(Player player) {
+        return String.format("Summarize this baseball player in brief :\nName: %s %s\nBorn: %s-%s-%s in %s, %s\nWeight: %slbs",
+                player.getFirstName(), player.getLastName(),
+                player.getBirthYear(), player.getBirthMonth(), player.getBirthDay(),
+                player.getBirthCity(), player.getBirthCountry(),
+                player.getWeight());
     }
 }
