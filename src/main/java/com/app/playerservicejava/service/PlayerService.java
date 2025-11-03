@@ -1,6 +1,7 @@
 package com.app.playerservicejava.service;
 
 import com.app.playerservicejava.dto.AdminResponseDto;
+import com.app.playerservicejava.dto.GuestPlayerDto;
 import com.app.playerservicejava.dto.PlayerSummary;
 import com.app.playerservicejava.dto.UserResponseDto;
 import com.app.playerservicejava.exception.BadRequestException;
@@ -33,6 +34,13 @@ public class PlayerService {
         playerRepository.findAll()
                 .forEach(players.getPlayers()::add);
         return players;
+    }
+
+    public List<GuestPlayerDto> getPlayersForGuest() {
+        return playerRepository.findAll()
+                .stream()
+                .map(player -> new GuestPlayerDto(player.getFirstName(), player.getLastName()))
+                .collect(Collectors.toList());
     }
 
     public Optional<Player> getPlayerById(String playerId) {

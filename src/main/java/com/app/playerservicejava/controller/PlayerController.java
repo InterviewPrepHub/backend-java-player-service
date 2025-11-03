@@ -1,5 +1,6 @@
 package com.app.playerservicejava.controller;
 
+import com.app.playerservicejava.dto.GuestPlayerDto;
 import com.app.playerservicejava.dto.PlayerSummary;
 import com.app.playerservicejava.exception.PlayerNotFoundException;
 import com.app.playerservicejava.model.Player;
@@ -15,6 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,11 +31,20 @@ public class PlayerController {
     @Resource
     private PlayerService playerService;
 
-    @RequestMapping(method = RequestMethod.GET)
+//    @RequestMapping(method = RequestMethod.GET)
+//    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin")
     public ResponseEntity<Players> getPlayers() {
         Players players = playerService.getPlayers();
         return ok(players);
     }
+
+    @GetMapping("/guest")
+    public ResponseEntity<List<GuestPlayerDto>> getPlayersForGuests() {
+        List<GuestPlayerDto> guestPlayerDtoList = playerService.getPlayersForGuest();
+        return ok(guestPlayerDtoList);
+    }
+
 
     /*@GetMapping("/{id}")
     public ResponseEntity<Player> getPlayerById(@PathVariable("id") String id) {
