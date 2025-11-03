@@ -2,6 +2,7 @@ package com.app.playerservicejava.controller;
 
 import com.app.playerservicejava.dto.GuestPlayerDto;
 import com.app.playerservicejava.dto.PlayerSummary;
+import com.app.playerservicejava.exception.AdminAccessException;
 import com.app.playerservicejava.exception.PlayerNotFoundException;
 import com.app.playerservicejava.model.Player;
 import com.app.playerservicejava.model.Players;
@@ -35,6 +36,10 @@ public class PlayerController {
 //    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin")
     public ResponseEntity<Players> getPlayers() {
+
+        if(true) {
+            throw new AdminAccessException("ADMIN_API_ERROR: Access Denied");
+        }
         Players players = playerService.getPlayers();
         return ok(players);
     }

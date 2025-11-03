@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @RestControllerAdvice
@@ -68,5 +71,20 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<ApiError> build(HttpStatus status, String error, String message, HttpServletRequest req) {
         return ResponseEntity.status(status).body(new ApiError(error, message, status.value(), req.getRequestURI()));
+    }
+
+    @ExceptionHandler(AdminAccessException.class)
+    public ResponseEntity<?> handleAdminAccess(AdminAccessException adminAccessException) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("error", "ADMIN_API_ERROR");
+        error.put("message", adminAccessException.getMessage());
+        error.put("status", 403);
+        error.put("timestamp", LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler(GuestAccessException.class)
+    public ResponseEntity<String> handleGuestAccess(GuestAccessException guestAccessException) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(guestAccessException.getMessage());
     }
 }
