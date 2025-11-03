@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -34,5 +35,18 @@ public class PlayerController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    /*
+    Our service receives requests from a client that includes the query param isAdmin=true or isAdmin=false
+    As an Admin user, I should see the first and last names of all players.
+    As a regular user, I should only see the first names of all players.
+
+    Scope: Plan and implement a new feature in your service Add test coverage
+     */
+    @GetMapping("/roles")
+    public ResponseEntity<List<?>> getAllPlayers(@RequestParam(name="isAdmin", defaultValue = "false") boolean isAdmin) {
+        List<?> players = playerService.getAllPlayersBasedOnRoles(isAdmin);
+        return ResponseEntity.ok(players);
     }
 }

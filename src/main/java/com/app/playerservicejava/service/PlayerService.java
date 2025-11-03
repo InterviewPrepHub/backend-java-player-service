@@ -1,5 +1,7 @@
 package com.app.playerservicejava.service;
 
+import com.app.playerservicejava.dto.AdminResponseDto;
+import com.app.playerservicejava.dto.UserResponseDto;
 import com.app.playerservicejava.model.Player;
 import com.app.playerservicejava.model.Players;
 import com.app.playerservicejava.repository.PlayerRepository;
@@ -8,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PlayerService {
@@ -36,6 +40,19 @@ public class PlayerService {
             return Optional.empty();
         }
         return player;
+    }
+
+    public List<?> getAllPlayersBasedOnRoles(boolean isAdmin) {
+        if(isAdmin) {
+            return playerRepository.findAll()
+                    .stream()
+                    .map(player -> new AdminResponseDto(player.getFirstName(), player.getLastName()))
+                    .collect(Collectors.toList());
+        }
+        return playerRepository.findAll()
+                .stream()
+                .map(player -> new UserResponseDto(player.getFirstName()))
+                .collect(Collectors.toList());
     }
 
 }
