@@ -4,6 +4,8 @@ spring:
     username: sa
     password:
     url: jdbc:h2:mem:playerdb
+    initialization-mode: always
+    schema: classpath:schema.sql
   jpa:
     hibernate:
       ddl-auto: none
@@ -17,7 +19,7 @@ spring:
       enabled: true
 
 server:
-  port: 8080
+  port: 8181
   include-debug-info: true
   error:
     include-message: always

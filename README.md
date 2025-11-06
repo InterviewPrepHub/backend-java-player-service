@@ -89,3 +89,13 @@ Having trouble with docker? Try using podman as an alternative. Instructions [he
 
 2. Open your browser and visit `http://localhost:8080/v1/chat/list-models`
    - If the application is running successfully, you will see a json response that include information about tinyllama
+
+
+### Part 5: Open H2 console
+
+http://localhost:8181/h2-console/
+
+#### Properties
+url: jdbc:h2:mem:playerdb
+initialization-mode: always
+schema: classpath:schema.sql
