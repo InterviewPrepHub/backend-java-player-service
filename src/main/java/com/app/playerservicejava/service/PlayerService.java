@@ -49,16 +49,16 @@ public class PlayerService {
         }*/
     }
 
-    public Page<?> getAllPlayersBasedOnRoles(String role, Pageable pageable) {
-
-        /*
+    /*
         This used Offset-based pagination.
         Internal code:
             SELECT * FROM players ORDER BY player_id DESC LIMIT 20 OFFSET 40;
         This is the classic offset-limit type.
 
         offset = page * size
-         */
+     */
+    public Page<?> getAllPlayersBasedOnRoles(String role, Pageable pageable) {
+
         if (pageable.getPageNumber() < 0 || pageable.getPageSize() <= 0) {
             throw new IllegalArgumentException("Invalid page or size");
         }
