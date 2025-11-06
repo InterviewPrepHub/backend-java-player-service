@@ -64,6 +64,7 @@ public class PlayerController {
     I’d use Spring Cache with a key based on filter + sort + page:
      */
 
+    //Purpose: Dynamically search for Player entities based on optional filters.
     @GetMapping("/v1/players/search")
     public ResponseEntity<Page<?>> searchPlayers(
             @RequestParam(required = false) String birthCountry,

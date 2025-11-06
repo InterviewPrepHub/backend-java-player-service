@@ -82,7 +82,10 @@ public class PlayerService {
             throw new IllegalArgumentException("Role parameter cannot be null or empty");
         }
 
-        Page<Player> page = playerRepository.findAll(pageable);
+        long start = System.currentTimeMillis();
+        Page<Player> players = playerRepository.findAll(pageable);
+        long end = System.currentTimeMillis() - start;
+        System.out.println("DB call time: " + end + "ms");
 
         PlayerRoleMapper playerRoleMapper = roleMapperFactory.getMapper(role.toUpperCase());
 
