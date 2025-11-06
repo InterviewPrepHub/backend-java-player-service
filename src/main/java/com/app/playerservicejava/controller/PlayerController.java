@@ -46,4 +46,34 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.getAllPlayersBasedOnRoles(role, pageable));
     }
 
+    /*
+    Prompt: Design an endpoint GET /v1/players/search that supports filtering by birthCountry, bats, and debutYear,
+    allows sorting by birthYear, nameLast, or playerId.
+    Support pagination Optimize with indexes Allow partial matches (e.g., nameLast=Jo should match Johnson)
+    Return metadata like total pages and current page
+
+    Follow-ups:
+    How would you design dynamic query construction?
+    I used Spring Data JPA’s Specification API to build queries dynamically based on non-null parameters.
+    This avoids hardcoding and supports flexible filtering.
+
+    How would you prevent SQL injection?
+    I avoid string concatenation and ensure all inputs are safely escaped
+
+    How would you cache frequent queries?
+    I’d use Spring Cache with a key based on filter + sort + page:
+     */
+
+    @GetMapping("/v1/players/search")
+    public ResponseEntity<Page<?>> searchPlayers(
+            @RequestParam(required = false) String birthCountry,
+            @RequestParam(required = false) String bats,
+            @RequestParam(required = false) String debutYear,
+            @RequestParam(required = false) String nameLast,
+            @PageableDefault(size = 20, sort = "birthYear") Pageable pageable) {
+
+        return ResponseEntity.ok(playerService.searchPlayers(birthCountry, bats, debutYear, nameLast, pageable));
+    }
+
+
 }

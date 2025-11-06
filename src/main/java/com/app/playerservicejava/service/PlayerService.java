@@ -8,8 +8,11 @@ import com.app.playerservicejava.repository.RoleAttributeAccessRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,6 +33,11 @@ public class PlayerService {
         playerRepository.findAll()
                 .forEach(players.getPlayers()::add);
         return players;
+    }
+
+    @CacheEvict(value = "playersByRole", allEntries = true)
+    public void updatePlayer(Player player) {
+        playerRepository.save(player);
     }
 
     public Player getPlayerById(String playerId) {
@@ -56,7 +64,14 @@ public class PlayerService {
         This is the classic offset-limit type.
 
         offset = page * size
+
+        Roles like GUEST and SCOUT often view public data that doesn’t change frequently.
      */
+
+    @Cacheable(
+            value = "playersByRole",
+            key = "#role + '-' + #pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort.toString()"
+    )
     public Page<?> getAllPlayersBasedOnRoles(String role, Pageable pageable) {
 
         if (pageable.getPageNumber() < 0 || pageable.getPageSize() <= 0) {
@@ -90,6 +105,38 @@ public class PlayerService {
             throw new RuntimeException("Error accessing player data. Please try again later.", e);
         }*/
 
+    }
+
+    /*
+     - For distributed caching, I’d use Redis with TTL and cache invalidation on player updates.
+     - playerSearch::USA-R-2014-Jo-0-20
+
+     1. Performance Boost for Repeated Searches
+     2. Reduced Load on Database
+     3. Improved User Experience
+
+     */
+    @Cacheable(
+            value = "playerSearch",
+            key = "#birthCountry + '-' + #bats + '-' + #debutYear + '-' + #nameLast + '-' + #pageable.pageNumber + '-' + #pageable.pageSize"
+    )
+    public Page<Player> searchPlayers(String birthCountry, String bats, String debutYear, String nameLast, Pageable pageable) {
+        Specification<Player> spec = Specification.where(null);
+
+        if (birthCountry != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("birthCountry"), birthCountry));
+        }
+        if (bats != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("bats"), bats));
+        }
+        if (debutYear != null) {
+            spec = spec.and((root, query, cb) -> cb.like(root.get("debut"), debutYear + "%"));
+        }
+        if (nameLast != null) {
+            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("lastName")), "%" + nameLast.toLowerCase() + "%"));
+        }
+
+        return playerRepository.findAll(spec, pageable);
     }
 
 }
