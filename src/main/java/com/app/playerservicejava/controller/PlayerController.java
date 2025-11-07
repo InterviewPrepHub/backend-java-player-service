@@ -78,5 +78,33 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.searchPlayers(birthCountry, bats, debutYear, nameLast, pageable));
     }
 
+    /*
+        implement Sorting Players by Custom Criteria
+        🔹 1. Define Custom Sort Keys
+              Let’s say you support:
+
+              Custom Key	Derived From
+              experience	currentYear - debutYear
+              impact	    matchesPlayed * battingAverage
+              age	        currentYear - birthYear
+     */
+    @GetMapping("/sorted")
+    public ResponseEntity<List<Player>> getSortedPlayers(@RequestParam String sortBy,
+                                                         @PageableDefault(size=10, direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(playerService.getSortedPlayers(sortBy, pageable));
+
+    }
+
+    /*
+        ✅ When to Use Comparator-Based Sorting
+        Use it after fetching data from the database, especially when:
+        The sort field is not directly mapped in the entity or differs in naming
+        You want to sort by derived fields (e.g., age, experience)
+        You want to support custom sort keys like "lastname" that aren’t part of the JPA @Sort mapping
+     */
+    @GetMapping("/ranking")
+    public ResponseEntity<?> getRanking(@RequestParam int topN) {
+        return ResponseEntity.ok(playerService.getTopRankedPlayers(topN));
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.app.playerservicejava.service;
 
 import com.app.playerservicejava.dto.AdminDto;
+import com.app.playerservicejava.dto.PlayerSummary;
 import com.app.playerservicejava.exception.PlayerNotFoundException;
 import com.app.playerservicejava.model.Player;
 import com.app.playerservicejava.model.Players;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.Year;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +36,10 @@ public class PlayerService {
     private RoleMapperFactory roleMapperFactory;
 
     public Players getPlayers() {
+
+        List<Player> res = playerRepository.findAllSortedByFirstName();
+        res.stream().forEach(player -> System.out.println(player.getFirstName()));
+
         Players players = new Players();
         playerRepository.findAll()
                 .forEach(players.getPlayers()::add);
@@ -149,6 +155,46 @@ public class PlayerService {
         }
 
         return playerRepository.findAll(spec, pageable);
+    }
+
+    public List<Player> getSortedPlayers(String sortBy, Pageable pageable) {
+
+        List<Player> players = playerRepository.findAll(pageable).stream().toList();
+
+        Comparator<Player> comparator = switch (sortBy.toLowerCase()) {
+            case "age" -> Comparator.comparing(p -> getYearsSince(((Player) p).getBirthYear()));
+            default -> Comparator.comparing(Player::getPlayerId);
+        };
+
+        return players.stream()
+                .sorted(comparator)
+                .toList();
+    }
+
+    private int getYearsSince(String birthYear) {
+        int curr = Year.now().getValue();
+        int birthYr = Integer.parseInt(birthYear);
+        return birthYr - curr;
+    }
+
+    public List<Player> getTopRankedPlayers(int topN) {
+
+        List<Player> playerList = playerRepository.findAll();
+
+        Comparator<Player> comparator = Comparator.comparing(player ->
+                ((Player)player).getWeight(), Comparator.nullsLast(Comparator.naturalOrder()));
+
+        return playerList.stream().sorted(comparator).limit(topN).toList();
+
+    }
+
+
+    class PlayerRankingComparator implements Comparator<Player> {
+
+        @Override
+        public int compare(Player o1, Player o2) {
+            return 0;
+        }
     }
 
 }
