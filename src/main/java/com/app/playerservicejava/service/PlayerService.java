@@ -1,5 +1,6 @@
 package com.app.playerservicejava.service;
 
+import com.app.playerservicejava.dto.AdminDto;
 import com.app.playerservicejava.exception.PlayerNotFoundException;
 import com.app.playerservicejava.model.Player;
 import com.app.playerservicejava.model.Players;
@@ -14,6 +15,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PlayerService {
@@ -72,7 +77,7 @@ public class PlayerService {
             value = "playersByRole",
             key = "#role + '-' + #pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort.toString()"
     )
-    public Page<?> getAllPlayersBasedOnRoles(String role, Pageable pageable) {
+    public List<?> getAllPlayersBasedOnRoles(String role, Pageable pageable) {
 
         if (pageable.getPageNumber() < 0 || pageable.getPageSize() <= 0) {
             throw new IllegalArgumentException("Invalid page or size");
@@ -89,7 +94,11 @@ public class PlayerService {
 
         PlayerRoleMapper playerRoleMapper = roleMapperFactory.getMapper(role.toUpperCase());
 
-        return page.map(playerRoleMapper::map);
+        List<?> mapped = players.stream().map(player -> playerRoleMapper.map(player)).toList();
+
+        Comparator<Object> comparator = Comparator.comparing(p -> ((AdminDto) p).getLastName());
+
+        return mapped.stream().sorted(comparator).toList();
 
 
         /*try {

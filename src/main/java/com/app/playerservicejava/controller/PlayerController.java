@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.app.playerservicejava.Role.ADMIN;
@@ -40,8 +41,9 @@ public class PlayerController {
 
 
     @GetMapping("/paged/roles")
-    public ResponseEntity<Page<?>> getAllPlayersByRole(@RequestParam String role,
-                                                 @PageableDefault(page=0, size=20, sort="birthYear", direction= Sort.Direction.DESC)  Pageable pageable) {
+    public ResponseEntity<List<?>> getAllPlayersByRole(@RequestParam String role,
+                                                       @RequestParam String sortBy,
+                                                       @PageableDefault(page=0, size=20, direction= Sort.Direction.DESC)  Pageable pageable) {
 
         return ResponseEntity.ok(playerService.getAllPlayersBasedOnRoles(role, pageable));
     }
